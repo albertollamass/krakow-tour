@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#102a43">
+<meta name="description" content="Guía interactiva de Cracovia 26–29 octubre 2026: itinerario, mapa en vivo con tu ubicación, rutas a Google Maps, comida y checklist.">
+<meta property="og:title" content="Cracovia · 26–29 octubre 2026 · Guía interactiva">
+<meta property="og:description" content="Itinerario + mapa en vivo + rutas a Google Maps. Todo offline-friendly en una sola web.">
+<meta property="og:type" content="website">
+<title>Cracovia · 26–29 octubre 2026 · Guía interactiva</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--ink:#102a43;--muted:#627d98;--accent:#c05621;--line:#e6e9ed;--soft:#eef4f8;--ok:#2f855a;--blue:#2b6cb0}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:#243b53;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+header{background:linear-gradient(135deg,#102a43,#243b53);color:#fff;padding:24px 18px 16px;position:sticky;top:0;z-index:1000;box-shadow:0 3px 16px #102a4333}
+.wrap{max-width:900px;margin:auto}
+h1{font-size:30px;margin:0 0 4px}h2{color:var(--ink);margin:8px 0 12px;font-size:22px}h3{margin:14px 0 8px;color:var(--ink);font-size:17px}
+.sub{opacity:.85;font-size:14px}
+.countdown{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.cd{background:#ffffff18;border:1px solid #ffffff28;border-radius:12px;padding:6px 12px;text-align:center;min-width:68px}
+.cd b{display:block;font-size:20px}.cd span{font-size:11px;opacity:.8}
+nav{display:flex;gap:7px;overflow:auto;padding:14px 0 4px;scrollbar-width:none}nav a{color:#fff;text-decoration:none;white-space:nowrap;background:#ffffff18;border:1px solid #ffffff25;border-radius:999px;padding:7px 12px;font-size:13px}
+main{padding:18px 14px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:17px;margin:14px 0;box-shadow:0 2px 10px #102a4308}
+.hero{background:linear-gradient(135deg,#fff8f2,#fff);border-left:5px solid var(--accent)}
+.tag{display:inline-block;border-radius:999px;background:var(--soft);color:var(--ink);padding:4px 10px;font-size:12px;font-weight:700;margin:2px 4px 4px 0}
+.tag.day{border:1px solid var(--line)}.tag.live{background:#e6fffa;color:#234e52;border:1px solid #81e6d9}
+.time{font-weight:800;color:var(--accent);min-width:96px;display:inline-block}
+.row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.btn{display:inline-block;text-decoration:none;background:var(--ink);color:#fff;padding:9px 13px;border-radius:10px;font-size:13px;font-weight:700;margin:6px 6px 0 0;border:0;cursor:pointer}
+.btn.alt{background:#edf2f7;color:var(--ink)}.btn.accent{background:var(--accent);color:#fff}.btn.green{background:var(--ok);color:#fff}.btn.blue{background:var(--blue);color:#fff}.btn.small{padding:6px 10px;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.food,.place{background:#f8fafc;border-radius:12px;padding:11px;border:1px solid var(--line)}
+.place b{display:block;color:var(--ink)}.place .dist{font-size:12px;color:var(--blue);font-weight:700}
+ul{padding-left:21px;margin:7px 0}.small{font-size:13px;color:var(--muted)}
+.check{display:flex;gap:9px;align-items:flex-start;margin:9px 0;cursor:pointer}.check input{width:19px;height:19px;margin-top:2px;accent-color:var(--ok)}
+.notice{background:#fffaf0;border:1px solid #f6d9a8;border-radius:13px;padding:12px}
+.progress{height:8px;background:#edf2f7;border-radius:99px;overflow:hidden;margin-top:8px}.progress i{display:block;height:100%;background:var(--ok);width:0%}
+/* MAP */
+#map{height:420px;border-radius:14px;border:1px solid var(--line);z-index:1}
+.map-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:600}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.map-status{font-size:13px;background:var(--soft);border-radius:10px;padding:8px 11px;margin:10px 0}
+.places-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.pl-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;font-size:13px}
+.pl-item b{color:var(--ink);font-size:13px}.pl-item .meta{color:var(--muted);font-size:12px;margin:3px 0}
+.leaflet-popup-content{font-family:inherit !important;line-height:1.4}
+.pp-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pp-btns a{font-size:12px;font-weight:700;text-decoration:none;padding:6px 9px;border-radius:8px;background:var(--ink);color:#fff}
+.pp-btns a.g{background:var(--blue)}.pp-btns a.o{background:#edf2f7;color:var(--ink)}
+.dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 2px #0003}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:18px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:640px){h1{font-size:25px}.grid,.places-list{grid-template-columns:1fr}.card{padding:15px}.row{display:block}.time{display:block;margin-bottom:2px}#map{height:360px}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<h1>🇵🇱 Cracovia · 4 días</h1>
+<div class="sub">Lun 26 → Jue 29 octubre 2026 · guía interactiva con mapa en vivo</div>
+<div class="countdown" id="countdown">
+<div class="cd"><b id="cd-d">–</b><span>días</span></div>
+<div class="cd"><b id="cd-h">–</b><span>horas</span></div>
+<div class="cd"><b id="cd-m">–</b><span>min</span></div>
+<div class="cd"><b id="cd-s">–</b><span>seg</span></div>
+<div class="cd"><b>✈️</b><span id="cd-label">hasta ida 11:25</span></div>
+</div>
+<nav>
+<a href="#mapa">🗺 Mapa en vivo</a><a href="#hoy">Resumen</a><a href="#lunes">Lun 26</a><a href="#martes">Mar 27</a><a href="#miercoles">Mié 28</a><a href="#jueves">Jue 29</a><a href="#comida">Comida</a><a href="#practico">Práctico</a><a href="#checklist">Checklist</a>
+</nav>
+</div>
+</header>
+
+<main class="wrap">
+
+<section id="mapa" class="card">
+<h2>🗺 Mapa interactivo en vivo</h2>
+<p class="small">Activa tu ubicación y verás <b>tu punto azul</b>, la distancia a cada lugar y la ruta del día dibujada. Al pulsar cualquier lugar o ruta puedes abrirla en <b>Google Maps</b> con un toque.</p>
+<div class="map-toolbar">
+<button class="btn blue" id="btn-locate">📍 Activar mi ubicación</button>
+<button class="btn alt" id="btn-center">🎯 Centrarme</button>
+<button class="btn alt" id="btn-hotel">🏨 Ver desde hotel</button>
+</div>
+<div class="map-status" id="map-status">📡 Ubicación desactivada. Pulsa “Activar mi ubicación” cuando estés en Cracovia (o ahora para probar).</div>
+<div id="map"></div>
+<div class="map-toolbar" id="route-chips" style="margin-top:12px">
+<button class="chip active" data-route="all">Todos</button>
+<button class="chip" data-route="lun">Lun 26 llegada</button>
+<button class="chip" data-route="mar">Mar 27 centro+minas</button>
+<button class="chip" data-route="mie">Mié 28 Kazimierz</button>
+<button class="chip" data-route="jue">Jue 29 despedida</button>
+<button class="chip" data-route="logistica">🚌 Recogidas</button>
+</div>
+<div id="route-action" style="margin:6px 0"></div>
+<div class="places-list" id="places-list"></div>
+<p class="small">Mapa: © OpenStreetMap contributors · Leaflet. Las distancias son en línea recta, úsalo como orientación.</p>
+</section>
+
+<section id="hoy" class="card hero">
+<h2>⭐ Plan óptimo</h2>
+<p><b>Free tours: haz los dos.</b> Centro histórico el martes a las 10:00 y Kazimierz/barrio judío el miércoles a las 16:30.</p>
+<p>Ya tienes dos excursiones grandes: <b>Minas de Sal martes 14:45</b> y <b>Auschwitz miércoles por la mañana</b>. El resto flexible para caminar y disfrutar.</p>
+<div class="notice"><b>Regla de transporte:</b> casi todo andando. Tranvía/bus para lluvia o cansancio, Bolt/Uber para aeropuerto y maletas.</div>
+<div class="top-actions">
+<button class="btn accent" data-goto="rynek">📍 Ver Rynek en mapa</button>
+<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=Rynek+G%C5%82%C3%B3wny%2C+Krak%C3%B3w">Abrir Rynek en Google Maps ↗</a>
+</div>
+</section>
+
+<section id="lunes" class="card">
+<h2>🟢 Lunes 26 · Llegada + primera toma</h2>
+<span class="tag day">✈️ 11:25 llegada</span><span class="tag">🚶 4–5 km a pie</span><span class="tag">😌 sin prisas</span>
+<div class="row"><span class="time">✈️ Llegada</span><span>Aeropuerto → hotel. Tren a Kraków Główny si vais ligeros, luego paseo al alojamiento.</span></div>
+<div class="row"><span class="time">Después</span><span>Check-in en <b>Art &amp; Garden Residence</b>.</span></div>
+<div class="row"><span class="time">16:00 aprox.</span><span>Ruta a pie: Barbakan → Puerta San Florián → Floriańska → Rynek → Grodzka → Wawel exterior → Vístula.</span></div>
+<div class="row"><span class="time">19:00+</span><span>Cena polaca y descanso. Sin free tour este día.</span></div>
+<button class="btn blue" data-route-show="lun">🗺 Ver ruta del lunes en mapa</button>
+<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Krakow+Barbican&destination=Wawel+Royal+Castle%2C+Krakow&waypoints=St.+Florian%27s+Gate+Krakow%7CRynek+Glowny+Krakow&travelmode=walking">🚶 Abrir ruta Lun en Google Maps ↗</a>
+<button class="btn alt" data-goto="barbakan">📍 Barbakan</button>
+<button class="btn alt" data-goto="wawel">📍 Wawel</button>
+</section>
+
+<section id="martes" class="card">
+<h2>🔵 Martes 27 · Centro + Wawel + Minas</h2>
+<span class="tag day">⭐ free tour 10:00</span><span class="tag">🧂 minas 14:45</span>
+<div class="row"><span class="time">08:00</span><span>Desayuno.</span></div>
+<div class="row"><span class="time">09:20</span><span>Hotel → Rynek andando. Margen para el tour.</span></div>
+<div class="row"><span class="time">10:00</span><span><b>⭐ FREE TOUR CENTRO HISTÓRICO</b>. Rynek, historia, Wawel, ocupación.</span></div>
+<div class="row"><span class="time">12:15</span><span>Comida: pierogi / cocina tradicional.</span></div>
+<div class="row"><span class="time">13:15</span><span>Grodzka → Wawel exterior, catedral/colina, dragón. <b>Sin entrar a fondo</b>.</span></div>
+<div class="row"><span class="time">14:20</span><span>Wawel → <b>Wielopole 2</b> andando.</span></div>
+<div class="row"><span class="time">14:45</span><span>🧂 <b>MINAS DE SAL</b> — excursión reservada.</span></div>
+<div class="row"><span class="time">Noche</span><span>Vuelta y cena tranquila.</span></div>
+<button class="btn blue" data-route-show="mar">🗺 Ver ruta del martes en mapa</button>
+<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Rynek+Glowny+Krakow&destination=Wielopole+2+Krakow&waypoints=Wawel+Royal+Castle+Krakow&travelmode=walking">🚶 Abrir ruta Mar en Google Maps ↗</a>
+<a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Wielopole+2+Krakow">📍 Wielopole 2</a>
+</section>
+
+<section id="miercoles" class="card">
+<h2>🔴 Miércoles 28 · Auschwitz + Kazimierz</h2>
+<span class="tag day">🪖 Auschwitz ~7h</span><span class="tag">✡️ free tour 16:30</span>
+<div class="row"><span class="time">Mañana</span><span>Desayuno y paseo a recogida. <b>Auschwitz</b> unas 7 h.</span></div>
+<div class="row"><span class="time">Antes</span><span>Recogida <b>Pawia 18a</b>. Llegar 10–15 min antes de la hora de tu reserva.</span></div>
+<div class="row"><span class="time">Tarde</span><span>Volver, comer/descansar, ir a Kazimierz.</span></div>
+<div class="row"><span class="time">16:30</span><span><b>⭐ FREE TOUR KAZIMIERZ</b>. Szeroka, sinagogas, historia judía.</span></div>
+<div class="row"><span class="time">19:00+</span><span>Szeroka → Józefa → Plac Nowy. <b>Zapiekanka</b> + cerveza.</span></div>
+<button class="btn blue" data-route-show="mie">🗺 Ver ruta Kazimierz en mapa</button>
+<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Szeroka+Street+Krakow&destination=Plac+Nowy+Krakow&waypoints=Old+Synagogue+Krakow%7CRemuh+Synagogue+Krakow&travelmode=walking">🚶 Abrir ruta Mié en Google Maps ↗</a>
+<a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pawia+18a+Krakow">📍 Pawia 18a</a>
+</section>
+
+<section id="jueves" class="card">
+<h2>🟡 Jueves 29 · Último paseo + aeropuerto</h2>
+<span class="tag day">✈️ 14:45 vuelta</span><span class="tag">🎒 maletas 11:00</span>
+<div class="row"><span class="time">08:00</span><span>Desayuno.</span></div>
+<div class="row"><span class="time">09:00</span><span>Planty → Rynek → Sukiennice → Floriańska. Fotos/compras.</span></div>
+<div class="row"><span class="time">11:00</span><span>Hotel, recoger maletas.</span></div>
+<div class="row"><span class="time">11:15–11:30</span><span>Salir al aeropuerto. Con maletas: Bolt/Uber/taxi.</span></div>
+<div class="row"><span class="time">14:45</span><span>✈️ Vuelo de vuelta.</span></div>
+<button class="btn blue" data-route-show="jue">🗺 Ver ruta del jueves en mapa</button>
+<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Planty+Park+Krakow&destination=Rynek+Glowny+Krakow&travelmode=walking">🚶 Abrir ruta Jue en Google Maps ↗</a>
+</section>
+
+<section class="card">
+<h2>📍 Lugares para guardar</h2>
+<p class="small">Guárdalos en una lista “Cracovia 2026” en Google Maps. Desde el mapa superior también los abres con un toque.</p>
+<div class="grid" id="save-grid"></div>
+</section>
+
+<section id="comida" class="card">
+<h2>🍽️ Qué comer</h2>
+<div class="grid">
+<div class="food"><b>🥟 Pierogi</b><br><span class="small">Ruskie, carne, setas/queso.</span></div>
+<div class="food"><b>🍲 Żurek</b><br><span class="small">Centeno fermentado con huevo y salchicha.</span></div>
+<div class="food"><b>🥣 Barszcz</b><br><span class="small">Remolacha, a veces con uszka.</span></div>
+<div class="food"><b>🥩 Bigos</b><br><span class="small">Col fermentada y carne.</span></div>
+<div class="food"><b>🥔 Placki ziemniaczane</b><br><span class="small">Tortitas de patata.</span></div>
+<div class="food"><b>🥖 Zapiekanka</b><br><span class="small">En Plac Nowy tras el tour Kazimierz.</span></div>
+<div class="food"><b>🥨 Obwarzanek</b><br><span class="small">Pretzel de Cracovia para picar.</span></div>
+<div class="food"><b>🧀 Oscypek</b><br><span class="small">Queso ahumado de oveja.</span></div>
+</div>
+<h3>🍴 Sitios opción</h3>
+<ul>
+<li><b>Pod Baranem</b> — tradicional cerca de Wawel.</li>
+<li><b>Kuchnia u Doroty</b> — polaca en Kazimierz. <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kuchnia+u+Doroty+Krakow">Maps ↗</a></li>
+<li><b>Starka</b> — cena algo más especial en Kazimierz. <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Starka+Krakow">Maps ↗</a></li>
+<li><b>Restauracja Polska</b> — tradicional en Miodowa.</li>
+<li><b>Plac Nowy</b> — zapiekanki. <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Plac+Nowy+Krakow">Maps ↗</a></li>
+</ul>
+</section>
+
+<section id="practico" class="card">
+<h2>🚶 Cómo moverse</h2>
+<div class="row"><span class="time">Hotel → Rynek</span><span>🚶 10–15 min.</span></div>
+<div class="row"><span class="time">Hotel → Pawia 18a</span><span>🚶 Cerca. Confirmar ruta la víspera.</span></div>
+<div class="row"><span class="time">Hotel → Wielopole 2</span><span>🚶 ~20 min.</span></div>
+<div class="row"><span class="time">Rynek → Wawel</span><span>🚶 ~15 min.</span></div>
+<div class="row"><span class="time">Centro → Kazimierz</span><span>🚶 20–30 min.</span></div>
+<div class="row"><span class="time">Largos / lluvia</span><span>🚋 Tranvía/bus o Bolt/Uber.</span></div>
+<h3>🎟️ Transporte público</h3>
+<p>Billetes para bus+tranvía. No compraría abono por defecto: usaréis poco. Tarifas 2026: 30 min/6 PLN, 60 min/8 PLN, 90 min/9 PLN, 24 h desde 20 PLN zona I.</p>
+<a class="btn" target="_blank" rel="noopener" href="https://jakdojade.pl/krakow/trasa/">🚌 Jakdojade</a>
+<a class="btn alt" target="_blank" rel="noopener" href="https://krakowairport.pl/en/passenger/travel/train/">🚆 Tren aeropuerto</a>
+<a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=Krakow+Airport&destination=Art+Garden+Residence+Krakow&travelmode=transit">✈️ Aeropuerto→Hotel en Maps ↗</a>
+</section>
+
+<section id="checklist" class="card">
+<h2>🎒 Checklist <span class="small" id="check-pct">0%</span></h2>
+<div class="progress"><i id="check-bar"></i></div>
+<div id="checks">
+<label class="check"><input type="checkbox" data-k="ausch"> Reservas Auschwitz y Minas guardadas offline.</label>
+<label class="check"><input type="checkbox" data-k="tour1"> Free tour centro reservado mar 10:00.</label>
+<label class="check"><input type="checkbox" data-k="tour2"> Free tour Kazimierz reservado mié 16:30.</label>
+<label class="check"><input type="checkbox" data-k="pawia"> Pawia 18a guardado en Maps.</label>
+<label class="check"><input type="checkbox" data-k="wielo"> Wielopole 2 guardado en Maps.</label>
+<label class="check"><input type="checkbox" data-k="hotel"> Hotel guardado en Maps.</label>
+<label class="check"><input type="checkbox" data-k="ropa"> Calzado cómodo + impermeable octubre.</label>
+<label class="check"><input type="checkbox" data-k="docs"> Vuelos y docs accesibles sin conexión.</label>
+</div>
+<button class="btn alt small" id="btn-reset-check">↺ Reiniciar checklist</button>
+</section>
+
+<section class="card">
+<h2>❤️ Lo que NO metería</h2>
+<p><b>Schindler + más museos:</b> con Auschwitz + Minas + 2 free tours ya vas lleno. Deja hueco para pasear y comer.</p>
+<p class="small">Emergencias PL: 112 · Taxi oficial / Bolt · Agua del grifo potable en Cracovia.</p>
+</section>
+</main>
+<footer>Cracovia · 26–29 oct 2026 · guía personal · mapa OSM + Google Maps para navegar</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const PLACES=[
+{id:'hotel',name:'🏨 Art & Garden Residence (base)',cat:'Base',day:'lun',lat:50.0699,lng:19.9291,desc:'Krowoderska 71. Base 4 noches.',q:'Art+Garden+Residence+Krowoderska+71+Krakow'},
+{id:'rynek',name:'🏰 Rynek Główny',cat:'Centro',day:'lun',lat:50.06143,lng:19.93658,desc:'Plaza medieval. Punto free tour centro.',q:'Rynek+Glowny+Krakow'},
+{id:'maria',name:'⛪ Basílica Santa María',cat:'Centro',day:'lun',lat:50.06167,lng:19.93639,desc:'Hejnał cada hora desde la torre.',q:'St+Marys+Basilica+Krakow'},
+{id:'barbakan',name:'🛡️ Barbakan',cat:'Centro',day:'lun',lat:50.06552,lng:19.94162,desc:'Inicio ruta lunes 16h.',q:'Krakow+Barbican'},
+{id:'florian',name:'🚪 Puerta San Florián',cat:'Centro',day:'lun',lat:50.06472,lng:19.94143,desc:'Entrada casco histórico.',q:'St+Florians+Gate+Krakow'},
+{id:'wawel',name:'👑 Castillo Wawel',cat:'Wawel',day:'mar',lat:50.05402,lng:19.93543,desc:'Exterior + vistas Vístula + dragón.',q:'Wawel+Royal+Castle+Krakow'},
+{id:'catedral',name:'⛪ Catedral Wawel',cat:'Wawel',day:'mar',lat:50.05433,lng:19.93533,desc:'Colina catedralicia.',q:'Wawel+Cathedral+Krakow'},
+{id:'dragon',name:'🐉 Dragón Wawel',cat:'Wawel',day:'mar',lat:50.05360,lng:19.93344,desc:'Echa fuego cada pocos min.',q:'Wawel+Dragon+Krakow'},
+{id:'szeroka',name:'✡️ Szeroka (Kazimierz)',cat:'Kazimierz',day:'mie',lat:50.05150,lng:19.94960,desc:'Punto free tour judío 16:30.',q:'Szeroka+Street+Krakow'},
+{id:'vieja',name:'🕍 Sinagoga Vieja',cat:'Kazimierz',day:'mie',lat:50.05133,lng:19.94850,desc:'Museo judaísmo.',q:'Old+Synagogue+Krakow'},
+{id:'remuh',name:'🕍 Sinagoga Remuh',cat:'Kazimierz',day:'mie',lat:50.05260,lng:19.94730,desc:'Activa + cementerio.',q:'Remuh+Synagogue+Krakow'},
+{id:'plac',name:'🥖 Plac Nowy',cat:'Kazimierz',day:'mie',lat:50.05140,lng:19.94500,desc:'Zapiekanki noche miércoles.',q:'Plac+Nowy+Krakow'},
+{id:'pawia',name:'🚌 Pawia 18a · Auschwitz',cat:'Recogidas',day:'logistica',lat:50.06790,lng:19.94400,desc:'Recogida Auschwitz. Llega 15 min antes.',q:'Pawia+18a+Krakow'},
+{id:'wielo',name:'🧂 Wielopole 2 · Minas',cat:'Recogidas',day:'logistica',lat:50.05850,lng:19.94350,desc:'Recogida Minas mar 14:45.',q:'Wielopole+2+Krakow'},
+{id:'schindler',name:'🪖 Fábrica Schindler',cat:'WWII',day:'mie',lat:50.04759,lng:19.96182,desc:'Opcional si sobra tiempo.',q:'Oskar+Schindler+Enamel+Factory+Krakow'},
+{id:'getto',name:'🪖 Plac Bohaterów Getta',cat:'WWII',day:'mie',lat:50.04640,lng:19.95300,desc:'Memorial sillas.',q:'Ghetto+Heroes+Square+Krakow'},
+{id:'aeropuerto',name:'✈️ Aeropuerto KRK',cat:'Logística',day:'logistica',lat:50.07773,lng:19.78479,desc:'Llegada 11:25 lun / vuelta 14:45 jue.',q:'Krakow+Airport'},
+{id:'estacion',name:'🚆 Kraków Główny',cat:'Logística',day:'logistica',lat:50.06850,lng:19.94700,desc:'Tren aeropuerto + cercanías.',q:'Krakow+Glowny+railway+station'}
+];
+const ROUTES={
+lun:{name:'Lun 26 · Barbakan → Wawel',color:'#2f855a',pts:[[50.06552,19.94162],[50.06472,19.94143],[50.06143,19.93658],[50.05402,19.93543],[50.0536,19.93344]],gmaps:'https://www.google.com/maps/dir/?api=1&origin=Krakow+Barbican&destination=Wawel+Royal+Castle%2C+Krakow&waypoints=St.+Florian%27s+Gate+Krakow%7CRynek+Glowny+Krakow&travelmode=walking'},
+mar:{name:'Mar 27 · Rynek → Wawel → Wielopole',color:'#2b6cb0',pts:[[50.06143,19.93658],[50.05402,19.93543],[50.0585,19.9435]],gmaps:'https://www.google.com/maps/dir/?api=1&origin=Rynek+Glowny+Krakow&destination=Wielopole+2+Krakow&waypoints=Wawel+Royal+Castle+Krakow&travelmode=walking'},
+mie:{name:'Mié 28 · Kazimierz Szeroka → Plac Nowy',color:'#c53030',pts:[[50.0515,19.9496],[50.05133,19.9485],[50.0526,19.9473],[50.0514,19.945]],gmaps:'https://www.google.com/maps/dir/?api=1&origin=Szeroka+Street+Krakow&destination=Plac+Nowy+Krakow&waypoints=Old+Synagogue+Krakow%7CRemuh+Synagogue+Krakow&travelmode=walking'},
+jue:{name:'Jue 29 · Planty → Rynek despedida',color:'#b7791f',pts:[[50.0647,19.9414],[50.06143,19.93658],[50.0699,19.9291]],gmaps:'https://www.google.com/maps/dir/?api=1&origin=Planty+Park+Krakow&destination=Rynek+Glowny+Krakow&travelmode=walking'},
+logistica:{name:'Recogidas + aeropuerto',color:'#6b46c1',pts:[[50.0699,19.9291],[50.0679,19.944],[50.0585,19.9435]],gmaps:'https://www.google.com/maps/dir/?api=1&origin=Art+Garden+Residence+Krakow&destination=Wielopole+2+Krakow&waypoints=Pawia+18a+Krakow&travelmode=walking'}
+};
+const map=L.map('map',{scrollWheelZoom:false}).setView([50.0605,19.9395],14);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+map.on('focus',()=>map.scrollWheelZoom.enable());map.on('blur',()=>map.scrollWheelZoom.disable());
+const markers={};let userMarker=null,userCircle=null,userPos=null,activePoly=null;
+const colors={'Base':'#c05621','Centro':'#2f855a','Wawel':'#744210','Kazimierz':'#2b6cb0','Recogidas':'#c53030','WWII':'#4a5568','Logística':'#6b46c1'};
+function icon(cat){const c=colors[cat]||'#102a43';return L.divIcon({className:'',html:`<span class="dot" style="background:${c};width:18px;height:18px"></span>`,iconSize:[18,18],iconAnchor:[9,9],popupAnchor:[0,-10]});}
+function gDir(destLat,destLng){if(userPos){return `https://www.google.com/maps/dir/?api=1&origin=${userPos.lat},${userPos.lng}&destination=${destLat},${destLng}&travelmode=walking`;}return `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`;}
+PLACES.forEach(p=>{
+const m=L.marker([p.lat,p.lng],{icon:icon(p.cat)}).addTo(map);
+m.bindPopup(`<b>${p.name}</b><br><span style="font-size:12px;color:#627d98">${p.desc}</span><br><span class="dist" data-dist="${p.id}"></span><div class="pp-btns"><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${p.q}">📍 Ver</a><a class="g" target="_blank" rel="noopener" href="#" data-nav="${p.id}">🧭 Cómo llegar</a><a class="o" href="#" data-center="${p.id}">🎯 Centrar</a></div>`);
+markers[p.id]=m;
+});
+map.on('popupopen',e=>{
+const nav=e.popup.getElement().querySelector('[data-nav]');
+if(nav){const p=PLACES.find(x=>x.id===nav.dataset.nav);nav.href=gDir(p.lat,p.lng);}
+const c=e.popup.getElement().querySelector('[data-center]');
+if(c){c.onclick=(ev)=>{ev.preventDefault();const p=PLACES.find(x=>x.id===c.dataset.center);map.setView([p.lat,p.lng],17);}}
+});
+function hav(a,b,c,d){const R=6371,t=Math.PI/180;const h=Math.sin((c-a)*t/2)**2+Math.cos(a*t)*Math.cos(c*t)*Math.sin((d-b)*t/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function fmt(km){return km<1?`${Math.round(km*1000)} m de ti`:`${km.toFixed(1)} km de ti`;}
+function renderList(filter='all'){
+const box=document.getElementById('places-list');box.innerHTML='';
+let arr=PLACES.filter(p=>filter==='all'?true:p.day===filter||(filter==='logistica'&&['logistica'].includes(p.day)));
+if(userPos){arr=arr.map(p=>({...p,d:hav(userPos.lat,userPos.lng,p.lat,p.lng)})).sort((a,b)=>a.d-b.d);} 
+arr.forEach(p=>{
+const el=document.createElement('div');el.className='pl-item';
+el.innerHTML=`<b>${p.name}</b><div class="meta">${p.desc}<br>${userPos?`📏 ${fmt(p.d)} · `:''}${p.cat}</div><button class="btn small blue" data-goto="${p.id}">Ver</button> <a class="btn small" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${p.q}">Maps ↗</a> <a class="btn small alt" target="_blank" rel="noopener" data-nav2="${p.lat},${p.lng}" href="${gDir(p.lat,p.lng)}">Ruta ↗</a>`;
+box.appendChild(el);
+});
+box.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>gotoPlace(b.dataset.goto));
+document.querySelectorAll('[data-dist]').forEach(s=>{const p=PLACES.find(x=>x.id===s.dataset.dist);if(p&&userPos)s.textContent='📏 '+fmt(hav(userPos.lat,userPos.lng,p.lat,p.lng));});
+}
+function gotoPlace(id){const p=PLACES.find(x=>x.id===id);if(!p)return;map.setView([p.lat,p.lng],16);markers[id].openPopup();document.getElementById('mapa').scrollIntoView({behavior:'smooth'});}
+document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>gotoPlace(b.dataset.goto));
+function showRoute(key){
+document.querySelectorAll('#route-chips .chip').forEach(c=>c.classList.toggle('active',c.dataset.route===key));
+if(activePoly){map.removeLayer(activePoly);activePoly=null;}
+const box=document.getElementById('route-action');
+if(key==='all'){renderList('all');box.innerHTML='';map.setView([50.0605,19.9395],14);return;}
+const r=ROUTES[key];if(!r)return;
+activePoly=L.polyline(r.pts,{color:r.color,weight:5,opacity:.9}).addTo(map);map.fitBounds(activePoly.getBounds().pad(0.25));
+box.innerHTML=`<div class="notice"><b>${r.name}</b><br><a class="btn accent" target="_blank" rel="noopener" href="${r.gmaps}">🚶 Abrir esta ruta en Google Maps ↗</a> <span class="small">Navegación paso a paso con tu ubicación.</span></div>`;
+renderList(key);
+}
+document.querySelectorAll('#route-chips .chip').forEach(c=>c.onclick=()=>showRoute(c.dataset.route));
+document.querySelectorAll('[data-route-show]').forEach(b=>b.onclick=()=>{showRoute(b.dataset.routeShow);document.getElementById('mapa').scrollIntoView({behavior:'smooth'});});
+const status=document.getElementById('map-status');
+function onPos(pos){
+userPos={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy};
+if(!userMarker){userMarker=L.marker([userPos.lat,userPos.lng],{icon:L.divIcon({className:'',html:'<span class="dot" style="background:#2b6cb0;width:20px;height:20px;box-shadow:0 0 0 6px #2b6cb033;border:3px solid #fff"></span>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map).bindPopup('📍 Estás aquí');}
+else userMarker.setLatLng([userPos.lat,userPos.lng]);
+if(!userCircle)userCircle=L.circle([userPos.lat,userPos.lng],{radius:userPos.acc||50,color:'#2b6cb0',weight:1,opacity:.5,fillOpacity:.12}).addTo(map);
+else userCircle.setLatLng([userPos.lat,userPos.lng]).setRadius(userPos.acc||50);
+status.innerHTML=`✅ Ubicación activa (±${Math.round(userPos.acc||0)} m). Lista ordenada por cercanía. <b>Toca un punto → “Cómo llegar”</b> para navegar en Google Maps desde donde estás.`;
+renderList(document.querySelector('#route-chips .chip.active').dataset.route);
+}
+function onErr(e){status.textContent='⚠️ No se pudo obtener ubicación: '+(e.message||e.code)+' Revisa permisos del navegador (https + GPS).';}
+document.getElementById('btn-locate').onclick=()=>{
+if(!navigator.geolocation){status.textContent='⚠️ Tu navegador no soporta geolocalización.';return;}
+status.textContent='📡 Buscando tu ubicación… acepta el permiso.';
+navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,timeout:15000});
+navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true});
+};
+document.getElementById('btn-center').onclick=()=>{if(userPos)map.setView([userPos.lat,userPos.lng],16);else status.textContent='Activa primero tu ubicación.';};
+document.getElementById('btn-hotel').onclick=()=>gotoPlace('hotel');
+// save-grid
+const sg=document.getElementById('save-grid');
+PLACES.slice(0,12).forEach(p=>{const d=document.createElement('div');d.className='place';d.innerHTML=`<b>${p.name}</b><span class="small">${p.desc}</span><br><button class="btn small blue" data-goto="${p.id}">Ver en mapa</button> <a class="btn small" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${p.q}">Maps ↗</a>`;sg.appendChild(d);});
+sg.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>gotoPlace(b.dataset.goto));
+// countdown
+const target=new Date('2026-10-26T11:25:00+01:00').getTime();
+function tick(){const n=Date.now();let s=Math.max(0,Math.floor((target-n)/1000));const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);const ss=s%60;document.getElementById('cd-d').textContent=d;document.getElementById('cd-h').textContent=h;document.getElementById('cd-m').textContent=m;document.getElementById('cd-s').textContent=ss;document.getElementById('cd-label').textContent=n>target?'¡estás allí!':'hasta ida 11:25';}
+setInterval(tick,1000);tick();
+// checklist persist
+const KEY='cracovia2026-checks';
+function loadChecks(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return{}}}
+function saveChecks(o){localStorage.setItem(KEY,JSON.stringify(o));updatePct();}
+function updatePct(){const boxes=[...document.querySelectorAll('#checks input')];const done=boxes.filter(b=>b.checked).length;const pct=Math.round(done/boxes.length*100);document.getElementById('check-pct').textContent=pct+'%';document.getElementById('check-bar').style.width=pct+'%';}
+const saved=loadChecks();document.querySelectorAll('#checks input').forEach(b=>{b.checked=!!saved[b.dataset.k];b.onchange=()=>{const o=loadChecks();o[b.dataset.k]=b.checked;saveChecks(o);};});updatePct();
+document.getElementById('btn-reset-check').onclick=()=>{localStorage.removeItem(KEY);document.querySelectorAll('#checks input').forEach(b=>b.checked=false);updatePct();};
+renderList('all');
+</script>
+</body>
+</html>
